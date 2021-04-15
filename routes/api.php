@@ -21,5 +21,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::resource('posts', PostController::class);
-
 Route::resource('comments', CommentsController::class);

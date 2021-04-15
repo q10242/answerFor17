@@ -12,27 +12,6 @@ class Post extends Model
 
     public $fillable = ['title', 'content'];
 
-    /**
-     * The attributes that should be casted to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'id' => 'integer',
-        'title' => 'string',
-        'content' => 'string'
-    ];
-
-    /**
-     * Validation rules
-     *
-     * @var array
-     */
-    public static $rules = [
-        'title' => 'required',
-        'content' => 'required'
-    ];
-
 
     public function comments()
     {

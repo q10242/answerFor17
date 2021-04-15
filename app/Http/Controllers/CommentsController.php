@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Comments;
 use Illuminate\Http\Request;
-
+use App\Models\Post;
+use Validator;
 class CommentsController extends Controller
 {
     /**
@@ -15,7 +16,7 @@ class CommentsController extends Controller
     public function index()
     {
 
-        return json_encode(Comments::all()->toArray());
+        return Comments::all();
     }
 
     /**
@@ -26,10 +27,23 @@ class CommentsController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            
+        $validate = Validator::make($request->all(), [
+            'comments' => 'required|max:1000',
+            'post_id'=> 'required|integer'
         ]);
-        return $request->test;
+
+        if($validate->fails()) {
+            return $validate->errors();
+        } 
+        
+
+        $post = Post::find($request->post_id);
+        $comment = new Comments([
+            'comments'=> $request->comments,
+            'post_id'=>$request->post_id
+        ]);
+        return $post->comments()->save($comment);
+        
     }
 
     /**
@@ -38,9 +52,9 @@ class CommentsController extends Controller
      * @param  \App\Models\Comments  $comments
      * @return \Illuminate\Http\Response
      */
-    public function show(Comments $comments)
+    public function show($comment)
     {
-        return json_encode($comments->toArray());
+        return Comments::find($comment);
     }
 
     /**
@@ -50,9 +64,14 @@ class CommentsController extends Controller
      * @param  \App\Models\Comments  $comments
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Comments $comments)
+    public function update(Request $request, $comments)
     {
-        //
+
+        $comments = Comments::find($comments);
+        $comments->update([
+            'comments'=>$request->comments
+        ]);
+        return $comments;
     }
 
     /**
@@ -61,8 +80,10 @@ class CommentsController extends Controller
      * @param  \App\Models\Comments  $comments
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Comments $comments)
+    public function destroy($comments)
     {
-        //
+        $comments = Comments::find($comments);
+        $comments->delete();
+        return response()->json(["deleted"=> $comments]);
     }
 }
