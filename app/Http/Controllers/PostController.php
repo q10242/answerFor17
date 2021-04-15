@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
-
+use Validator;
 class PostController extends Controller
 {
     /**
@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        return Post::with('comments')->get();
     }
 
     /**
@@ -24,8 +24,21 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
+    {   
+        $validate = Validator::make($request->all(), [
+            'title' => 'required|max:255',
+            'content' => 'required',
+        ]);
+
+        if($validate->fails()) {
+            return $validate->errors();
+        } 
+        
+        return  Post::create([
+            "title" => $request->title,
+            "content"=> $request->content
+        ]);
+        
     }
 
     /**
@@ -36,7 +49,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        $post->comments = $post->comments()->get();
+        return $post;
     }
 
     /**
@@ -48,7 +62,8 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $post->update($request->all());
+        return $post;
     }
 
     /**
@@ -59,6 +74,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return response()->json(["deleted"=> $post]);
+        
     }
 }
